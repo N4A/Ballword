@@ -28,7 +28,7 @@ public class MainActivity extends Activity {
     GameView gameView;
 
     //功能引用
-    SensorManager mySensorManager;	//SensorManager对象引用，后注册加速度传感器
+    SensorManager mySensorManager;	//SensorManager对象引用，后注册手机方向传感器
 
     //    界面转换控制
     public Handler hd = new Handler() {
@@ -78,6 +78,8 @@ public class MainActivity extends Activity {
         @Override
         public void onSensorChanged(int sensor, float[] values) {
             if(sensor == SensorManager.SENSOR_ORIENTATION) {//判断是否为加速度传感器变化产生的数据
+
+                //通过倾角算出X轴和Z轴方向的加速度
                 int directionDotXY[]= RotateUtil.getDirectionDot(
                         new double[]{values[0], values[1], values[2]}
                 );
@@ -205,10 +207,6 @@ public class MainActivity extends Activity {
         gameView.requestFocus();//获得焦点
         gameView.setFocusableInTouchMode(false);//可触控
         this.setContentView(gameView);
-//        TestGLSurfaceView testGLSurfaceView = new TestGLSurfaceView(this);
-//        this.setContentView(testGLSurfaceView);
-//        testGLSurfaceView.requestFocus();
-//        testGLSurfaceView.setFocusableInTouchMode(true);
     }
 
     /**
@@ -245,7 +243,7 @@ public class MainActivity extends Activity {
         mySensorManager.registerListener
                 (			//注册监听器
                         mySensorListener, 					//监听器对象
-                        SensorManager.SENSOR_ORIENTATION,	//传感器类型,
+                        SensorManager.SENSOR_ORIENTATION,	//传感器类型,倾角
                         SensorManager.SENSOR_DELAY_UI		//传感器事件传递的频度
                 );
     }
