@@ -203,6 +203,7 @@ public class MainActivity extends Activity {
      * 进入游戏界面
      */
     private void goToGameView() {
+        levelId=0;//模拟用
         gameView = new GameView(this);
         gameView.requestFocus();//获得焦点
         gameView.setFocusableInTouchMode(false);//可触控

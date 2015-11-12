@@ -2,12 +2,15 @@ package com.ballworld.view;
 
 import java.io.IOException;
 import java.io.InputStream;
+
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.opengles.GL11;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.opengl.GLSurfaceView;
 import android.opengl.GLU;
 import android.opengl.GLUtils;
@@ -17,9 +20,10 @@ import com.ballworld.activity.MainActivity;
 import com.ballworld.activity.R;
 import com.ballworld.mapEntity.Ball;
 import com.ballworld.mapEntity.Road;
+import com.ballworld.mapEntity.Walls;
 import com.ballworld.thread.BallMoveThread;
 
-import static  com.ballworld.util.Constant.*;
+import static com.ballworld.util.Constant.*;
 
 /**
  * Created by duocai at 18:57 on 2015/10/31.
@@ -28,6 +32,9 @@ public class GameView extends GLSurfaceView {
     private MainActivity activity;//调用该view的activity
     private BallMoveThread ballMoveThread;//小球移动线程
     private MyRenderer myRenderer;
+
+    //关卡信息
+    public static int levelId;//关卡id
 
     //图片纹理Id，渲染画面使用
     private int roadId;//路
@@ -38,36 +45,47 @@ public class GameView extends GLSurfaceView {
     private int targetId;//终点目标
     private int numberId;//数字
 
+    //路面类型
+
     //实现3d旋转
     private float mPreviousY;//上次的触控位置Y坐标
     private float mPreviousX;//上次的触控位置X坐标
-    public static float yAngle=0f;//方位角
-    public static float xAngle=90f;//仰角
+    public static float yAngle = 0f;//方位角
+    public static float xAngle = 90f;//仰角
     public static float cx;//摄像机x坐标
     public static float cy;//摄像机y坐标
     public static float cz;//摄像机z坐标
-    public static float tx=0;//观察目标点x坐标
-    public static float ty=0;//观察目标点y坐标
-    public static float tz=0f;//观察目标点z坐标
+    public static float tx = 0;//观察目标点x坐标
+    public static float ty = 0;//观察目标点y坐标
+    public static float tz = 0f;//观察目标点z坐标
 
     //地图上的对象
-    public Road road;
+    public static Road road;
+    public static int[][] map;//对应关卡的地图数组
+    public static int[][] mapBomb;//对应关卡的洞数组
+    public static Walls walls;//墙
     public static Ball ball;
 
     public GameView(MainActivity activity) {
         super(activity);
         //初始化变量
         this.activity = activity;
-        tx=0;//摄像机目标位置
-        ty=0;
-        tz=0;
+        //摄像机
+        tx = 0;//摄像机目标位置
+        ty = 0;
+        tz = 0;
         //设置摄像机的位置
-        cx=(float)(tx+Math.cos(Math.toRadians(xAngle))*Math.sin(Math.toRadians(yAngle))*DISTANCE);//摄像机x坐标
-        cz=(float)(tz+Math.cos(Math.toRadians(xAngle))*Math.cos(Math.toRadians(yAngle))*DISTANCE);//摄像机z坐标
-        cy=(float)(ty+Math.sin(Math.toRadians(xAngle))*DISTANCE);//摄像机y坐标
+        cx = (float) (tx + Math.cos(Math.toRadians(xAngle)) * Math.sin(Math.toRadians(yAngle)) * DISTANCE);//摄像机x坐标
+        cz = (float) (tz + Math.cos(Math.toRadians(xAngle)) * Math.cos(Math.toRadians(yAngle)) * DISTANCE);//摄像机z坐标
+        cy = (float) (ty + Math.sin(Math.toRadians(xAngle)) * DISTANCE);//摄像机y坐标
+
         //初始化地图上的对象
-        road=new Road(64,36);//地板
-        ball=new Ball(ballR,15);//小球
+        road = new Road(32, 20);//地板
+        ball = new Ball(ballR, 15);//小球
+        map = ALL_MAP[levelId];//地图
+        mapBomb = ALL_MAP_BOMB[levelId];//炸弹
+        walls = new Walls();
+
         //设置渲染器
         myRenderer = new MyRenderer();
         this.setRenderer(myRenderer);
@@ -85,8 +103,7 @@ public class GameView extends GLSurfaceView {
     public boolean onTouchEvent(MotionEvent e) {
         float y = e.getY();//得到按下的XY坐标
         float x = e.getX();
-        switch (e.getAction())
-        {
+        switch (e.getAction()) {
             case MotionEvent.ACTION_MOVE:
                 float dy = y - mPreviousY;//计算触控笔Y位移
                 float dx = x - mPreviousX;//计算触控笔X位移
@@ -102,8 +119,8 @@ public class GameView extends GLSurfaceView {
 //                }
 
                 //赞模拟小球运动
-                ball.ballX+=dx/10;
-                ball.ballZ+=dy/10;
+                ball.ballX += dx / 10;
+                ball.ballZ += dy / 10;
 
                 requestRender();//重绘画面
         }
@@ -160,17 +177,22 @@ public class GameView extends GLSurfaceView {
             gl.glEnable(GL10.GL_DEPTH_TEST);
 
             //初始化纹理
-            roadId = initRepeatTexture(gl, R.drawable.road);//路
+            switch (levelId) {//路面类型
+                case 0:
+                    roadId = initRepeatTexture(gl, R.drawable.snow);//路
+                    break;
+            }
+
             wallId = initRepeatTexture(gl, R.drawable.wall);//墙
             bombId = initNoRepeatTexture(gl, R.drawable.bomb);//炸弹
             coverBlockId = initNoRepeatTexture(gl, R.drawable.ball);//覆盖方块
-            ballId = initNoRepeatTexture(gl ,R.drawable.ball);//球
+            ballId = initNoRepeatTexture(gl, R.drawable.ball);//球
             targetId = initNoRepeatTexture(gl, R.drawable.target);//终点目标
             numberId = initNoRepeatTexture(gl, R.drawable.number);//数字
 
             initLight(gl);//初始化灯光
-            float[] positionParamsGreen={-4,4,4,0};//最后的0表示是定向光
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, positionParamsGreen,0);
+            float[] positionParamsGreen = {-4, 4, 4, 0};//最后的0表示是定向光
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_POSITION, positionParamsGreen, 0);
         }
 
         /**
@@ -242,7 +264,12 @@ public class GameView extends GLSurfaceView {
             gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);//允许使用法向量数组
 
             //画物体
-            road.drawSelf(gl, wallId);//绘制地面
+            road.drawSelf(gl, roadId);//绘制地面
+            //画墙
+            gl.glPushMatrix();//保护矩阵
+            gl.glTranslatef(-map[0].length / 2 * UNIT_SIZE, 0, (-map.length/2)*UNIT_SIZE);
+            walls.drawSelf(gl, ballId);   //绘制
+            gl.glPopMatrix();//恢复矩阵
             //画小球
             gl.glPushMatrix();//保护矩阵
             ball.drawSelf(gl, ballId);   //绘制
@@ -256,19 +283,18 @@ public class GameView extends GLSurfaceView {
             gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);//关闭 UV array
         }
 
-        private void initLight(GL10 gl)
-        {
+        private void initLight(GL10 gl) {
             //白色灯光
             gl.glEnable(GL10.GL_LIGHT0);//打开0号灯
             //环境光设置
             float[] ambientParams = {1f, 1f, 1f, 1.0f};//光参数 RGBA
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientParams,0);
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientParams, 0);
             //散射光设置
             float[] diffuseParams = {1f, 1f, 1f, 1.0f};//光参数 RGBA
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseParams,0);
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_DIFFUSE, diffuseParams, 0);
             //反射光设置
             float[] specularParams = {1f, 1f, 1f, 1.0f};//光参数 RGBA
-            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, specularParams,0);
+            gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_SPECULAR, specularParams, 0);
         }
     }
 
@@ -276,38 +302,32 @@ public class GameView extends GLSurfaceView {
      * 初始化图片纹理
      * 需重复绘制的
      */
-    public int initRepeatTexture(GL10 gl,int drawableId)//textureId
+    public int initRepeatTexture(GL10 gl, int drawableId)//textureId
     {
         //生成纹理ID
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);//获得材质纹理id
-        int currTextureId=textures[0];
+        int currTextureId = textures[0];
         gl.glBindTexture(GL10.GL_TEXTURE_2D, currTextureId);//向gL库添加该纹理
 
         //在MIN_FILTER MAG_FILTER中使用MIPMAP纹理
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_LINEAR_MIPMAP_NEAREST);
         gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR_MIPMAP_LINEAR);
         // 生成Mipmap纹理
-        ((GL11)gl).glTexParameterf(GL10.GL_TEXTURE_2D,GL11.GL_GENERATE_MIPMAP,GL10.GL_TRUE);
+        ((GL11) gl).glTexParameterf(GL10.GL_TEXTURE_2D, GL11.GL_GENERATE_MIPMAP, GL10.GL_TRUE);
         //重复绘制至充满
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S,GL10.GL_REPEAT);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T,GL10.GL_REPEAT);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_REPEAT);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_REPEAT);
 
         //获取图片资源
         InputStream is = this.getResources().openRawResource(drawableId);
         Bitmap bitmapTmp;
-        try
-        {
+        try {
             bitmapTmp = BitmapFactory.decodeStream(is);
-        }
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 is.close();
-            }
-            catch(IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
@@ -322,35 +342,29 @@ public class GameView extends GLSurfaceView {
      * 初始化纹理
      * 不需重复绘制的
      */
-    public int initNoRepeatTexture(GL10 gl,int drawableId)//textureId
+    public int initNoRepeatTexture(GL10 gl, int drawableId)//textureId
     {
         //生成纹理ID
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);
-        int currTextureId=textures[0];
+        int currTextureId = textures[0];
         gl.glBindTexture(GL10.GL_TEXTURE_2D, currTextureId);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER,GL10.GL_NEAREST);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D,GL10.GL_TEXTURE_MAG_FILTER,GL10.GL_LINEAR);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MIN_FILTER, GL10.GL_NEAREST);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_MAG_FILTER, GL10.GL_LINEAR);
 
         //靠边线绘制一次
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S,GL10.GL_CLAMP_TO_EDGE);
-        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T,GL10.GL_CLAMP_TO_EDGE);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_S, GL10.GL_CLAMP_TO_EDGE);
+        gl.glTexParameterf(GL10.GL_TEXTURE_2D, GL10.GL_TEXTURE_WRAP_T, GL10.GL_CLAMP_TO_EDGE);
 
         //获取图片资源
         InputStream is = this.getResources().openRawResource(drawableId);
         Bitmap bitmapTmp;
-        try
-        {
+        try {
             bitmapTmp = BitmapFactory.decodeStream(is);
-        }
-        finally
-        {
-            try
-            {
+        } finally {
+            try {
                 is.close();
-            }
-            catch(IOException e)
-            {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
