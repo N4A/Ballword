@@ -83,7 +83,7 @@ public class GameView extends GLSurfaceView {
         road = new Road(32, 20);//地板
         ball = new Ball(ballR, 15);//小球
         map = ALL_MAP[levelId];//地图
-        mapBomb = ALL_MAP_BOMB[levelId];//炸弹
+        //mapBomb = ALL_MAP_BOMB[levelId];//炸弹
         walls = new Walls();
 
         //设置渲染器
