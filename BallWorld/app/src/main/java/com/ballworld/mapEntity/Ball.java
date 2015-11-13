@@ -146,6 +146,7 @@ public class Ball {
 
     public void drawSelf(GL10 gl,int texId)
     {
+        gl.glPushMatrix();
         gl.glTranslatef(ballX, ballY, ballZ);     //移动相应的位置
         gl.glRotatef(mAngleZ, 0, 0, 1);//沿Z轴旋转
         gl.glRotatef(mAngleX, 1, 0, 0);//沿X轴旋转
@@ -179,6 +180,7 @@ public class Ball {
                         0, 			 			//开始点编号
                         vCount					//顶点数量
                 );
+        gl.glPopMatrix();
     }
 
     //自动切分纹理产生纹理数组的方法

@@ -6,20 +6,20 @@ import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
-import static com.ballworld.util.Constant.*;
+import static com.ballworld.util.Constant.UNIT_SIZE;
 
 /**
- * Created by duocai at 16:20 on 2015/11/12.
+ * Created by duocai at 12:24 on 2015/11/13.
  */
-public class Wall {
+public class CoverBlock {
     private FloatBuffer mVertexBuffer;//顶点坐标数据缓冲
     private FloatBuffer mTextureBuffer;//顶点纹理数据缓冲
     int vCount;//顶点数
-    float x;//向几轴推动到的地方
-    float y;
-    float z;
+    public float x;//向基础轴推动到的地方
+    public float y;
+    public float z;
 
-    public Wall(float width, float height) {
+    public CoverBlock(float width, float height) {
         vCount = 6;
         float[] vertices = new float[]{
                 -width * UNIT_SIZE / 2, height * UNIT_SIZE / 2, 0,
@@ -38,10 +38,10 @@ public class Wall {
         float textures[] = new float[]{
                 0, 0,
                 0, 1f,
-                1f, 1f,
+                0.5f, 1f,
 
-                1f, 1f,
-                1, 0,
+                0.5f, 1f,
+                0.5f, 0,
                 0, 0
         };
 
@@ -55,6 +55,7 @@ public class Wall {
     public void drawSelf(GL10 gl, int texId) {
         gl.glPushMatrix();
         gl.glTranslatef(x, y, z);
+        gl.glRotatef(-90,1,0,0);
         //为画笔指定顶点坐标数据
         gl.glVertexPointer
                 (
@@ -80,4 +81,3 @@ public class Wall {
         gl.glPopMatrix();
     }
 }
-

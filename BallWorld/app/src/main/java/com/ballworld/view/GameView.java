@@ -18,9 +18,8 @@ import android.view.MotionEvent;
 
 import com.ballworld.activity.MainActivity;
 import com.ballworld.activity.R;
-import com.ballworld.mapEntity.Ball;
-import com.ballworld.mapEntity.Road;
-import com.ballworld.mapEntity.Walls;
+import com.ballworld.mapEntity.*;
+import com.ballworld.mapEntity.Number;
 import com.ballworld.thread.BallMoveThread;
 
 import static com.ballworld.util.Constant.*;
@@ -29,7 +28,7 @@ import static com.ballworld.util.Constant.*;
  * Created by duocai at 18:57 on 2015/10/31.
  */
 public class GameView extends GLSurfaceView {
-    private MainActivity activity;//调用该view的activity
+    public static MainActivity activity;//调用该view的activity
     private BallMoveThread ballMoveThread;//小球移动线程
     private MyRenderer myRenderer;
 
@@ -63,8 +62,12 @@ public class GameView extends GLSurfaceView {
     public static Road road;
     public static int[][] map;//对应关卡的地图数组
     public static int[][] mapBomb;//对应关卡的洞数组
+    public static int[][] mapBombNumber;//提示数字
+    public static int[][] coverBlocks;//覆盖方块
     public static Walls walls;//墙
-    public static Ball ball;
+    public static Ball ball;//球
+    public static Bomb bomb;//炸弹
+    public static CoverBlock coverBlock;//覆盖方块
 
     public GameView(MainActivity activity) {
         super(activity);
@@ -80,11 +83,37 @@ public class GameView extends GLSurfaceView {
         cy = (float) (ty + Math.sin(Math.toRadians(xAngle)) * DISTANCE);//摄像机y坐标
 
         //初始化地图上的对象
-        road = new Road(32, 20);//地板
+        road = new Road(ALL_MAP[0][0].length, ALL_MAP[0].length);//地板
         ball = new Ball(ballR, 15);//小球
+        ball.ballY=0f;
         map = ALL_MAP[levelId];//地图
-        //mapBomb = ALL_MAP_BOMB[levelId];//炸弹
+        mapBomb = ALL_MAP_BOMB[levelId];//炸弹
+        mapBombNumber = new int[map.length][map[0].length];
+        for (int i = 0; i < map.length; i++) {//init，提示数
+            for (int j = 0; j < map[0].length; j++) {
+                int startZ = (i-1>0)?i-1:0;
+                int endZ = (i+2<=map.length)?i+2:map.length;
+                int startX = (j-1>0)?j-1:0;
+                int endX = (j+2<=map[0].length)?j+2:map[0].length;
+                int totalNumber = 0;
+                for (int m=startZ;m<endZ;m++){
+                    for (int n= startX;n<endX;n++){
+                        if (mapBomb[m][n]==1)
+                            totalNumber++;
+                    }
+                }
+                mapBombNumber[i][j]=totalNumber;
+            }
+        }
+        coverBlocks = new int[map.length][map[0].length];
+        for (int i = 0; i < coverBlocks.length; i++) {//init，全覆盖
+            for (int j = 0; j < coverBlocks[0].length; j++) {
+                coverBlocks[i][j]=1;
+            }
+        }
         walls = new Walls();
+        bomb = new Bomb(1, 1);//传参为长宽占几个单位
+        coverBlock = new CoverBlock(1, 1);
 
         //设置渲染器
         myRenderer = new MyRenderer();
@@ -101,36 +130,7 @@ public class GameView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        float y = e.getY();//得到按下的XY坐标
-        float x = e.getX();
-        switch (e.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-                float dy = y - mPreviousY;//计算触控笔Y位移
-                float dx = x - mPreviousX;//计算触控笔X位移
-//                yAngle += dx * TOUCH_SCALE_FACTOR;//仰角改变
-//                xAngle += dy * TOUCH_SCALE_FACTOR;//方位角改变
-//                if(xAngle+dy * TOUCH_SCALE_FACTOR<10)//如果当前摄像机仰角小于10,将其仰角强制为10
-//                {
-//                    xAngle=10;
-//                }
-//                if(xAngle+dy * TOUCH_SCALE_FACTOR>90)//当摄像机仰角大于85,将其强制为85;
-//                {
-//                    xAngle=90;
-//                }
-
-                //赞模拟小球运动
-                ball.ballX += dx / 10;
-                ball.ballZ += dy / 10;
-
-                requestRender();//重绘画面
-        }
-        mPreviousY = y;//记录触控笔位置
-        mPreviousX = x;//记录触控笔位置
-//        cx=(float)(tx+Math.cos(Math.toRadians(xAngle))*Math.sin(Math.toRadians(yAngle))*DISTANCE);//摄像机x坐标
-//        cz=(float)(tz+Math.cos(Math.toRadians(xAngle))*Math.cos(Math.toRadians(yAngle))*DISTANCE);//摄像机z坐标
-//        cy=(float)(ty+Math.sin(Math.toRadians(xAngle))*DISTANCE);//摄像机y坐标
         return true;
-
     }
 
 
@@ -185,7 +185,7 @@ public class GameView extends GLSurfaceView {
 
             wallId = initRepeatTexture(gl, R.drawable.wall);//墙
             bombId = initNoRepeatTexture(gl, R.drawable.bomb);//炸弹
-            coverBlockId = initNoRepeatTexture(gl, R.drawable.ball);//覆盖方块
+            coverBlockId = initNoRepeatTexture(gl, R.drawable.desert);//覆盖方块
             ballId = initNoRepeatTexture(gl, R.drawable.ball);//球
             targetId = initNoRepeatTexture(gl, R.drawable.target);//终点目标
             numberId = initNoRepeatTexture(gl, R.drawable.number);//数字
@@ -264,16 +264,65 @@ public class GameView extends GLSurfaceView {
             gl.glEnableClientState(GL10.GL_NORMAL_ARRAY);//允许使用法向量数组
 
             //画物体
-            road.drawSelf(gl, roadId);//绘制地面
+            //绘制地面
+            road.drawSelf(gl, roadId);
+            //绘制提示数字
+            gl.glEnable(GL10.GL_BLEND);//开启混合
+            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);//设置混合因子
+            gl.glPushMatrix();
+            gl.glTranslatef(-map[0].length * UNIT_SIZE / 2+UNIT_SIZE/2, 0.01f, -map.length * UNIT_SIZE / 2+UNIT_SIZE/2);
+            for (int i = 0; i < map.length; i++) {
+                for (int j = 0; j < map[0].length; j++) {
+                    if (mapBombNumber[i][j] != 0) {
+                        Number number = new Number(mapBombNumber[i][j], 1, 1);
+                        //移动到相应位置
+                        number.x = (j) * UNIT_SIZE;
+                        number.y = 0.001f;//略微浮起
+                        number.z = (i) * UNIT_SIZE;
+                        number.drawSelf(gl, numberId);//绘制
+                    }
+                }
+            }
+            gl.glPopMatrix();
+            gl.glDisable(GL10.GL_BLEND);//关闭混合
+            //绘制炸弹
+            gl.glEnable(GL10.GL_BLEND);//开启混合
+            gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);//设置混合因子
+            gl.glPushMatrix();
+            gl.glTranslatef(-map[0].length * UNIT_SIZE / 2+UNIT_SIZE/2, 0.01f, -map.length * UNIT_SIZE / 2+UNIT_SIZE/2);
+            for (int i = 0; i < map.length; i++) {
+                for (int j = 0; j < map[0].length; j++) {
+                    if (mapBomb[i][j] == 1||mapBomb[i][j] == 2) {
+                        //移动到相应位置
+                        bomb.x = (j) * UNIT_SIZE;
+                        bomb.y = 0.002f;//略微浮起
+                        bomb.z = (i) * UNIT_SIZE;
+                        bomb.drawSelf(gl, bombId);//绘制
+                    }
+                }
+            }
+            gl.glPopMatrix();
+            gl.glDisable(GL10.GL_BLEND);//关闭混合
+            //绘制覆盖方块
+            gl.glPushMatrix();
+            gl.glTranslatef(-map[0].length * UNIT_SIZE / 2+UNIT_SIZE/2, 0.01f, -map.length * UNIT_SIZE / 2+UNIT_SIZE/2);
+            for (int i = 0; i < map.length; i++) {
+                for (int j = 0; j < map[0].length; j++) {
+                    if (coverBlocks[i][j] == 1) {
+                        //移动到相应位置
+                        coverBlock.x = (j) * UNIT_SIZE;
+                        coverBlock.y = 0.01f;//略微浮起
+                        coverBlock.z = (i) * UNIT_SIZE;
+                        coverBlock.drawSelf(gl, coverBlockId);//绘制
+                    }
+                }
+            }
+            gl.glPopMatrix();
+
             //画墙
-            gl.glPushMatrix();//保护矩阵
-            gl.glTranslatef(-map[0].length / 2 * UNIT_SIZE, 0, (-map.length/2)*UNIT_SIZE);
-            walls.drawSelf(gl, ballId);   //绘制
-            gl.glPopMatrix();//恢复矩阵
+            walls.drawSelf(gl, wallId);   //绘制
             //画小球
-            gl.glPushMatrix();//保护矩阵
             ball.drawSelf(gl, ballId);   //绘制
-            gl.glPopMatrix();//恢复矩阵
 
             //清空buffer
             gl.glDisable(GL10.GL_LIGHTING);//关闭光照

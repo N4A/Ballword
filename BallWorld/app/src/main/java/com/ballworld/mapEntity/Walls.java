@@ -451,6 +451,8 @@ public class Walls {
     }
 
     public void drawSelf(GL10 gl, int texId) {
+        gl.glPushMatrix();//保护矩阵
+        gl.glTranslatef(-map[0].length / 2 * UNIT_SIZE, 0, (-map.length / 2) * UNIT_SIZE );
         //为画笔指定顶点坐标数据
         gl.glVertexPointer
                 (
@@ -474,6 +476,7 @@ public class Walls {
                         0,
                         vCount
                 );
+        gl.glPopMatrix();
     }
 
     //根据当前点  当前点必须为墙   判断出此点周围最大的面积块数

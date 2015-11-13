@@ -78,9 +78,8 @@ public class Road {
         
     }
 
-    public void drawSelf(GL10 gl,int texId)
-    {        
-        
+    public void drawSelf(GL10 gl,int texId) {
+        gl.glPushMatrix();
 		//为画笔指定顶点坐标数据
         gl.glVertexPointer
         (
@@ -103,5 +102,7 @@ public class Road {
         		0, 			 			//开始点编号
         		vCount					//顶点的数量
         );
+
+        gl.glPopMatrix();
     }
 }
