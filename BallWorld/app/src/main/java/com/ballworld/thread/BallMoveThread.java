@@ -1,6 +1,5 @@
 package com.ballworld.thread;
 
-import com.ballworld.mapEntity.CoverBlock;
 import com.ballworld.view.GameView;
 
 import static com.ballworld.util.Constant.*;
@@ -192,7 +191,7 @@ public class BallMoveThread extends Thread {
         }
 
         //到达目标
-        if ((int)(ballZ/UNIT_SIZE)==3&&(int)(ballX/UNIT_SIZE)==4) {
+        if ((int)(ballZ/UNIT_SIZE)==ball.ballMbZ&&(int)(ballX/UNIT_SIZE)==ball.ballMbX) {
             activity.hd.sendEmptyMessage(0);
         }
     }

@@ -83,9 +83,6 @@ public class GameView extends GLSurfaceView {
         cy = (float) (ty + Math.sin(Math.toRadians(xAngle)) * DISTANCE);//摄像机y坐标
 
         //初始化地图上的对象
-        road = new Road(ALL_MAP[0][0].length, ALL_MAP[0].length);//地板
-        ball = new Ball(ballR, 15);//小球
-        ball.ballY=0f;
         map = ALL_MAP[levelId];//地图
         mapBomb = ALL_MAP_BOMB[levelId];//炸弹
         mapBombNumber = new int[map.length][map[0].length];
@@ -111,6 +108,15 @@ public class GameView extends GLSurfaceView {
                 coverBlocks[i][j]=1;
             }
         }
+        road = new Road(ALL_MAP[0][0].length, ALL_MAP[0].length);//地板
+        ball = new Ball(ballR, 15);//小球
+        ball.ballGX= ball.ballGZ =ball.ballVX =ball.ballVZ=0f;
+        ball.ballCsX=ALL_INIT_LOCATION[levelId][0];
+        ball.ballCsZ=ALL_INIT_LOCATION[levelId][1];
+        ball.ballX=ball.ballCsX*UNIT_SIZE-map[0].length*UNIT_SIZE/2+UNIT_SIZE/2;//初始化球位置
+        ball.ballZ=ball.ballCsZ*UNIT_SIZE-map.length*UNIT_SIZE/2+UNIT_SIZE/2;
+        ball.ballMbX=ALL_TARGET_LOCATION[levelId][0];
+        ball.ballMbZ=ALL_TARGET_LOCATION[levelId][1];
         walls = new Walls();
         bomb = new Bomb(1, 1);//传参为长宽占几个单位
         coverBlock = new CoverBlock(1, 1);
@@ -179,13 +185,13 @@ public class GameView extends GLSurfaceView {
             //初始化纹理
             switch (levelId) {//路面类型
                 case 0:
-                    roadId = initRepeatTexture(gl, R.drawable.snow);//路
+                    roadId = initNoRepeatTexture(gl, R.drawable.snow);//路
                     break;
             }
 
-            wallId = initRepeatTexture(gl, R.drawable.wall);//墙
+            wallId = initRepeatTexture(gl, R.drawable.snowwall);//墙
             bombId = initNoRepeatTexture(gl, R.drawable.bomb);//炸弹
-            coverBlockId = initNoRepeatTexture(gl, R.drawable.desert);//覆盖方块
+            coverBlockId = initNoRepeatTexture(gl, R.drawable.snowcover);//覆盖方块
             ballId = initNoRepeatTexture(gl, R.drawable.ball);//球
             targetId = initNoRepeatTexture(gl, R.drawable.target);//终点目标
             numberId = initNoRepeatTexture(gl, R.drawable.number);//数字
@@ -351,8 +357,7 @@ public class GameView extends GLSurfaceView {
      * 初始化图片纹理
      * 需重复绘制的
      */
-    public int initRepeatTexture(GL10 gl, int drawableId)//textureId
-    {
+    public int initRepeatTexture(GL10 gl, int drawableId){
         //生成纹理ID
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);//获得材质纹理id
@@ -391,8 +396,7 @@ public class GameView extends GLSurfaceView {
      * 初始化纹理
      * 不需重复绘制的
      */
-    public int initNoRepeatTexture(GL10 gl, int drawableId)//textureId
-    {
+    public int initNoRepeatTexture(GL10 gl, int drawableId) {
         //生成纹理ID
         int[] textures = new int[1];
         gl.glGenTextures(1, textures, 0);

@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -13,6 +14,9 @@ import com.ballworld.activity.R;
 
 import static com.ballworld.util.Constant.*;
 
+/**
+ * Created by duocai at 20:30 on 2015/10/31.
+ */
 public class WelcomeView extends SurfaceView implements SurfaceHolder.Callback {//实现生命周期回调接口
     //声明变量
     MainActivity activity;//activity的引用
@@ -34,6 +38,19 @@ public class WelcomeView extends SurfaceView implements SurfaceHolder.Callback {
         logos[0] = BitmapFactory.decodeResource(activity.getResources(), R.drawable.welcome);
         logos[1] = BitmapFactory.decodeResource(activity.getResources(), R.drawable.logo);
     }
+
+    /**
+     * 重写的屏幕监听器
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // 屏幕被按下
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            activity.hd.sendEmptyMessage(2);
+        }
+        return super.onTouchEvent(event);
+    }
+
 
     /**
      * 绘制画面

@@ -21,6 +21,9 @@ import com.ballworld.view.WelcomeView;
 import static com.ballworld.util.Constant.*;
 import static com.ballworld.view.GameView.*;
 
+/**
+ * Created by duocai at 20:24 on 2015/10/31.
+ */
 public class MainActivity extends Activity {
     //声明变量
     //view
