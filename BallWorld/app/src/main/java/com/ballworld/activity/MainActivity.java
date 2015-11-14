@@ -87,8 +87,8 @@ public class MainActivity extends Activity {
                         new double[]{values[0], values[1], values[2]}
                 );
                 //改变小球加速度
-                ball.ballGX=-directionDotXY[0]*3.2f;//得到X和Z方向上的加速度
-                ball.ballGZ=directionDotXY[1]*3.2f;
+                ballGX=-directionDotXY[0]*3.2f;//得到X和Z方向上的加速度
+                ballGZ=directionDotXY[1]*3.2f;
             }
         }
     };
@@ -207,8 +207,7 @@ public class MainActivity extends Activity {
      * 进入游戏界面
      */
     private void goToGameView() {
-        levelId=0;//模拟用
-        gameView = new GameView(this);
+        gameView = new GameView(this,0);//模拟第0（1）关
         gameView.requestFocus();//获得焦点
         gameView.setFocusableInTouchMode(false);//可触控
         this.setContentView(gameView);

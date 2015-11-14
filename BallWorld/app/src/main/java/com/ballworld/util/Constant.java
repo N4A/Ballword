@@ -16,14 +16,17 @@ public class Constant {
     public static final float VZ_TENUATION = 0.655f;//碰壁时的速度衰减系数
     public static final float DISTANCE = 45;//30f;//摄像机与目标点的距离
 
-    public static int[][] ALL_INIT_LOCATION = {
+    //每一关小球的初始化位置
+    public static final int[][] ALL_INIT_LOCATION = {
             {1, 1}
     };
 
-    public static int[][] ALL_TARGET_LOCATION = {
+    //每一关小球的终点位置
+    public static final int[][] ALL_TARGET_LOCATION = {
             {5, 6}
     };
 
+    //所有的地图20*34，0代表可行区域，1代表障碍（不可行区域）
     public static final int[][][] ALL_MAP = {
             {
                     {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1},
@@ -49,10 +52,8 @@ public class Constant {
             }
     };
 
-    public static final int[][][] ALL_MAP_BOMB;
-
-    static {
-        ALL_MAP_BOMB = new int[][][]{//表示炸弹位置
+    //表示炸弹位置，对应每块地图上的炸弹位置
+    public static final int[][][] ALL_MAP_BOMB = new int[][][]{
                 {
                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -76,5 +77,4 @@ public class Constant {
                         {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
                 }
         };
-    }
 }

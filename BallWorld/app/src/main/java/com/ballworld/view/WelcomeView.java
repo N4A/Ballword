@@ -46,7 +46,7 @@ public class WelcomeView extends SurfaceView implements SurfaceHolder.Callback {
     public boolean onTouchEvent(MotionEvent event) {
         // 屏幕被按下
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            activity.hd.sendEmptyMessage(2);
+            activity.hd.sendEmptyMessage(0);
         }
         return super.onTouchEvent(event);
     }
