@@ -4,22 +4,28 @@ import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 
 import com.ballworld.util.RotateUtil;
 import com.ballworld.view.GameView;
 import com.ballworld.view.WelcomeView;
-import static com.ballworld.util.Constant.*;
-import static com.ballworld.view.GameView.*;
+
+import static com.ballworld.util.Constant.SCREEN_HEIGHT;
+import static com.ballworld.util.Constant.SCREEN_WIDTH;
+import static com.ballworld.view.GameView.OnTouchListener;
+import static com.ballworld.view.GameView.ballGX;
+import static com.ballworld.view.GameView.ballGZ;
 
 /**
  * Created by duocai at 20:24 on 2015/10/31.
@@ -29,10 +35,6 @@ public class MainActivity extends Activity {
     //view
     WelcomeView welcomeView;
     GameView gameView;
-
-    //功能引用
-    SensorManager mySensorManager;	//SensorManager对象引用，后注册手机方向传感器
-
     //    界面转换控制
     public Handler hd = new Handler() {
         @Override
@@ -71,24 +73,25 @@ public class MainActivity extends Activity {
             }
         }
     };
-
+    //功能引用
+    SensorManager mySensorManager;    //SensorManager对象引用，后注册手机方向传感器
     //监听传感器
-    private SensorListener mySensorListener = new SensorListener(){
+    private SensorListener mySensorListener = new SensorListener() {
         @Override
         public void onAccuracyChanged(int sensor, int accuracy) {
         }
 
         @Override
         public void onSensorChanged(int sensor, float[] values) {
-            if(sensor == SensorManager.SENSOR_ORIENTATION) {//判断是否为加速度传感器变化产生的数据
+            if (sensor == SensorManager.SENSOR_ORIENTATION) {//判断是否为加速度传感器变化产生的数据
 
                 //通过倾角算出X轴和Z轴方向的加速度
-                int directionDotXY[]= RotateUtil.getDirectionDot(
+                int directionDotXY[] = RotateUtil.getDirectionDot(
                         new double[]{values[0], values[1], values[2]}
                 );
                 //改变小球加速度
-                ballGX=-directionDotXY[0]*3.2f;//得到X和Z方向上的加速度
-                ballGZ=directionDotXY[1]*3.2f;
+                ballGX = -directionDotXY[0] * 3.2f;//得到X和Z方向上的加速度
+                ballGZ = directionDotXY[1] * 3.2f;
             }
         }
     };
@@ -115,7 +118,7 @@ public class MainActivity extends Activity {
         SCREEN_HEIGHT = dm.heightPixels;
         SCREEN_WIDTH = dm.widthPixels;
         //其他变量
-        mySensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);//获得SensorManager对象
+        mySensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);//获得SensorManager对象
 
         //进入欢迎界面
         goToWelcomeView();
@@ -139,9 +142,9 @@ public class MainActivity extends Activity {
 
         //get button
         ImageButton storyMode = (ImageButton) this.findViewById(R.id.storyModeButton),
-                    casualMode = (ImageButton) this.findViewById(R.id.casualModeButton),
-                    gameSetting = (ImageButton) this.findViewById(R.id.gameSettingButton),
-                    gameHelp = (ImageButton) this.findViewById(R.id.gameHelpButton);
+                casualMode = (ImageButton) this.findViewById(R.id.casualModeButton),
+                gameSetting = (ImageButton) this.findViewById(R.id.gameSettingButton),
+                gameHelp = (ImageButton) this.findViewById(R.id.gameHelpButton);
 
         //set listener
         storyMode.setOnClickListener(new View.OnClickListener() {
@@ -177,7 +180,36 @@ public class MainActivity extends Activity {
      */
     private void goToTownView() {
         setContentView(R.layout.main_town);
+        final ImageView hospital = (ImageView) findViewById(R.id.imageView2);
+        hospital.setOnTouchListener(new OnTouchListener() {
+            boolean click = true;
+            float previousX = 0;
+            float previousY = 0;
 
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+                if (event.getAction() == event.ACTION_DOWN) {
+                    hospital.setImageResource(R.drawable.fabricate);
+                }
+                if (event.getAction() == event.ACTION_MOVE) {
+                    float dx = x-previousX;
+                    float dy = y-previousY;
+                    if ((dx>2||dy>2)&&previousX!=0&&previousY!=0)
+                        click = false;
+                    previousX=x;
+                    previousY=y;
+                }
+                if (event.getAction() == event.ACTION_UP) {
+                    hospital.setImageResource(R.drawable.hospital);
+                    if (click)
+                        hd.sendEmptyMessage(0);
+                    click = true;
+                }
+                return false;
+            }
+        });
         //add listener
     }
 
@@ -207,7 +239,7 @@ public class MainActivity extends Activity {
      * 进入游戏界面
      */
     private void goToGameView() {
-        gameView = new GameView(this,0);//模拟第0（1）关
+        gameView = new GameView(this, 0);//模拟第0（1）关
         gameView.requestFocus();//获得焦点
         gameView.setFocusableInTouchMode(false);//可触控
         this.setContentView(gameView);
@@ -245,10 +277,10 @@ public class MainActivity extends Activity {
     {
         super.onResume();
         mySensorManager.registerListener
-                (			//注册监听器
-                        mySensorListener, 					//监听器对象
-                        SensorManager.SENSOR_ORIENTATION,	//传感器类型,倾角
-                        SensorManager.SENSOR_DELAY_UI		//传感器事件传递的频度
+                (            //注册监听器
+                        mySensorListener,                    //监听器对象
+                        SensorManager.SENSOR_ORIENTATION,    //传感器类型,倾角
+                        SensorManager.SENSOR_DELAY_UI        //传感器事件传递的频度
                 );
     }
 
@@ -256,7 +288,7 @@ public class MainActivity extends Activity {
     protected void onPause() //重写onPause方法
     {
         super.onPause();
-        mySensorManager.unregisterListener(mySensorListener);	//取消注册监听器
+        mySensorManager.unregisterListener(mySensorListener);    //取消注册监听器
     }
 
     @Override
