@@ -38,10 +38,10 @@ public class CoverBlock {
         float textures[] = new float[]{
                 0, 0,
                 0, 1f,
-                0.5f, 1f,
+                1f, 1f,
 
-                0.5f, 1f,
-                0.5f, 0,
+                1f, 1f,
+                1f, 0,
                 0, 0
         };
 
