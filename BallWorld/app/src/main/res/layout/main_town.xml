@@ -17,7 +17,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical|center_horizontal"
-            android:layout_marginTop="100dp">
+            android:layout_marginTop="100dp"
+            android:alpha="100">
 
             <ImageView
                 android:layout_width="wrap_content"
@@ -41,7 +42,17 @@
                 android:id="@+id/imageView2"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/hospital" />
+                android:src="@drawable/hospital"
+                android:adjustViewBounds="false"
+                android:clickable="true"
+                android:foregroundTint="@color/abc_search_url_text_selected"
+                android:tintMode="add"
+                android:visibility="visible"
+                android:longClickable="true"
+                android:foregroundTintMode="multiply"
+                android:focusableInTouchMode="true"
+                android:focusable="true"
+                android:contextClickable="true" />
 
         </LinearLayout>
 
@@ -84,18 +95,16 @@
         android:layout_height="wrap_content"
         android:id="@+id/imageView7"
         android:layout_marginTop="150dp"
-        android:src="@drawable/arraw1" />
+        android:src="@drawable/arraw1"
+        android:layout_alignParentLeft="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView8"
-        android:layout_alignTop="@+id/imageView7"
-        android:layout_toRightOf="@+id/imageView7"
-        android:layout_toEndOf="@+id/imageView7"
-        android:layout_marginLeft="422dp"
-        android:layout_marginStart="422dp"
-        android:src="@drawable/arraw2"/>
+        android:src="@drawable/arraw2"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/imageView7" />
 
     <ImageView
         android:layout_width="wrap_content"
