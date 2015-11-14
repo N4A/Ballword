@@ -23,36 +23,42 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView3"
+                android:id="@+id/house"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/house" />
+                android:src="@drawable/house"
+                android:clickable="true"
+                android:focusable="true"
+                android:longClickable="true" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView"
+                android:id="@+id/food"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/food" />
+                android:src="@drawable/food"
+                android:focusable="true"
+                android:clickable="true"
+                android:longClickable="true" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView2"
+                android:id="@+id/hospital"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
                 android:src="@drawable/hospital"
                 android:adjustViewBounds="false"
                 android:clickable="true"
                 android:foregroundTint="@color/abc_search_url_text_selected"
-                android:tintMode="add"
+                android:tintMode="screen"
                 android:visibility="visible"
                 android:longClickable="true"
                 android:foregroundTintMode="multiply"
-                android:focusableInTouchMode="true"
+                android:focusableInTouchMode="false"
                 android:focusable="true"
-                android:contextClickable="true" />
+                android:contextClickable="false" />
 
         </LinearLayout>
 
@@ -65,26 +71,35 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView4"
+                android:id="@+id/mine"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/mine" />
+                android:src="@drawable/mine"
+                android:clickable="true"
+                android:focusable="true"
+                android:longClickable="true" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView5"
+                android:id="@+id/wood"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/wood" />
+                android:src="@drawable/wood"
+                android:clickable="true"
+                android:focusable="true"
+                android:longClickable="true" />
 
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/imageView6"
+                android:id="@+id/fabricate"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:src="@drawable/fabricate" />
+                android:src="@drawable/fabricate"
+                android:clickable="true"
+                android:focusable="true"
+                android:longClickable="true" />
 
         </LinearLayout>
 
@@ -93,25 +108,34 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView7"
+        android:id="@+id/arraw1"
         android:layout_marginTop="150dp"
         android:src="@drawable/arraw1"
-        android:layout_alignParentLeft="true" />
+        android:layout_alignParentLeft="true"
+        android:clickable="true"
+        android:focusable="true"
+        android:longClickable="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView8"
+        android:id="@+id/arraw2"
         android:src="@drawable/arraw2"
         android:layout_alignParentRight="true"
-        android:layout_alignTop="@+id/imageView7" />
+        android:layout_alignTop="@+id/arraw1"
+        android:clickable="true"
+        android:focusable="true"
+        android:longClickable="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView9"
+        android:id="@+id/head"
         android:layout_alignParentTop="true"
-        android:src="@drawable/head" />
+        android:src="@drawable/head"
+        android:clickable="true"
+        android:focusable="true"
+        android:longClickable="true" />
 
 
 </RelativeLayout>
