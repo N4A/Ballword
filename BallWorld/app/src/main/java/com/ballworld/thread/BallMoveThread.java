@@ -108,7 +108,7 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballVZ = 0;
                         this.ballGZ = 0;
                     }
-
+                    gameView.activity.playSound(1,0);//撞壁音效
                     flag = true;//标志位置为true
                 }
             }
@@ -126,7 +126,7 @@ public class BallMoveThread extends Thread {
                         this.ballGX = 0;//加速度和速度设置为零
                         gameView.ball.ballVX = 0;
                     }
-
+                    gameView.activity.playSound(1,0);//撞壁音效
                     flag = true;
                 }
             }
@@ -144,7 +144,7 @@ public class BallMoveThread extends Thread {
                         this.ballGX = 0;//加速度和速度设置为零
                         gameView.ball.ballVX = 0;
                     }
-
+                    gameView.activity.playSound(1,0);//撞壁音效
                     flag = true;
                 }
             }
@@ -163,7 +163,7 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballVZ = 0;
                         this.ballGZ = 0;
                     }
-
+                    gameView.activity.playSound(1,0);//撞壁音效
                     flag = true;
                 }
             }
@@ -185,8 +185,10 @@ public class BallMoveThread extends Thread {
         if (gameView.mapBomb[(int) (ballZ / UNIT_SIZE)][(int) (ballX / UNIT_SIZE)] == 1) {
             gameView.mapBomb[(int) (ballZ / UNIT_SIZE)][(int) (ballX / UNIT_SIZE)] = 2;
             gameView.ball.ballVX=gameView.ball.ballVZ=0f;
+            gameView.activity.playSound(2,0);
+            gameView.activity.shake(0);//100ms短震动
             try {
-                sleep(100);
+                sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
