@@ -1,12 +1,17 @@
 package com.ballworld.activity;
 
 import android.app.Activity;
+import android.app.Service;
+import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.media.AudioManager;
+import android.media.SoundPool;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +25,8 @@ import android.widget.ImageView;
 import com.ballworld.util.RotateUtil;
 import com.ballworld.view.GameView;
 import com.ballworld.view.WelcomeView;
+
+import java.util.HashMap;
 
 import static com.ballworld.util.Constant.SCREEN_HEIGHT;
 import static com.ballworld.util.Constant.SCREEN_WIDTH;
@@ -74,6 +81,12 @@ public class MainActivity extends Activity {
         }
     };
     //功能引用
+    Vibrator myVibrator;//声明振动器
+    boolean shakeflag=true;//是否震动
+    SoundPool soundPool;//声音池
+    HashMap<Integer, Integer> soundPoolMap; //记录声音池返回的资源id
+    boolean backgroundSoundFlag = true;//是否播放背景音乐
+    boolean knockWallSoundFlag = true;//撞壁音效
     SensorManager mySensorManager;    //SensorManager对象引用，后注册手机方向传感器
     //监听传感器
     private SensorListener mySensorListener = new SensorListener() {
@@ -119,9 +132,57 @@ public class MainActivity extends Activity {
         SCREEN_WIDTH = dm.widthPixels;
         //其他变量
         mySensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);//获得SensorManager对象
-
+        myVibrator=(Vibrator)getApplication().getSystemService(Service.VIBRATOR_SERVICE);//获得震动服务
+        initSound();
         //进入欢迎界面
         goToWelcomeView();
+    }
+
+    /**
+     * 初始化音乐
+     */
+    private void initSound(){
+        //声音池
+        soundPool = new SoundPool(5, AudioManager.STREAM_MUSIC, 0);
+        soundPoolMap = new HashMap<Integer, Integer>();
+        //撞墙音
+        soundPoolMap.put(1, soundPool.load(this, R.raw.dong, 1));
+        soundPoolMap.put(2,soundPool.load(this,R.raw.bomb,1));
+    }
+
+    /**
+     * 播放声音
+     * @param sound - 声音id
+     * @param loop - loop —— 循环播放的次数，0为值播放一次，-1为无限循环，其他值为播放loop+1次（例如，3为一共播放4次）.
+     */
+    public void playSound(int sound, int loop) {
+        AudioManager mgr = (AudioManager)this.getSystemService(Context.AUDIO_SERVICE);
+        float streamVolumeCurrent = mgr.getStreamVolume(AudioManager.STREAM_MUSIC);//音量
+        float streamVolumeMax = mgr.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        float volume = streamVolumeCurrent / streamVolumeMax;
+        switch (sound) {
+            case 1:
+                if (knockWallSoundFlag)//是否关闭撞壁音效
+                    soundPool.play(soundPoolMap.get(sound), volume, volume, 1, loop, 1f);
+                break;
+            case 2:
+                soundPool.play(soundPoolMap.get(sound), volume, volume, 1, loop, 1f);
+                break;
+        }
+
+    }
+
+    /**
+     * 包装震动
+     * @param mode - 震动模式，0：一次100ms短震动
+     */
+    public void shake(int mode) {
+        if (shakeflag) {//判断用户是否关闭震动
+            switch (mode) {
+                case 0:
+                    myVibrator.vibrate(100);
+            }
+        }
     }
 
     /**
