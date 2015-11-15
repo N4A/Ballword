@@ -270,14 +270,28 @@ public class GameView extends GLSurfaceView {
             switch (levelId) {//路面类型
                 case 0:
                     roadId = initNoRepeatTexture(gl, R.drawable.snow);//路
+                    wallId = initRepeatTexture(gl, R.drawable.snowwall);//墙
+                    coverBlockId = initNoRepeatTexture(gl, R.drawable.snowcover);//覆盖方块
+                    break;
+                case 1:
+                    roadId = initNoRepeatTexture(gl, R.drawable.desert);//路
+                    wallId = initRepeatTexture(gl, R.drawable.desertwall);//墙
+                    coverBlockId = initNoRepeatTexture(gl, R.drawable.desertcover);//覆盖方块
+                    break;
+                case 2:
+                    roadId = initNoRepeatTexture(gl, R.drawable.grass);//路
+                    wallId = initRepeatTexture(gl, R.drawable.grasswall);//墙
+                    coverBlockId = initNoRepeatTexture(gl, R.drawable.grasscover);//覆盖方块
+                    break;
+                case 3:
+                    roadId = initNoRepeatTexture(gl, R.drawable.water);//路
+                    wallId = initRepeatTexture(gl, R.drawable.waterwall);//墙
+                    coverBlockId = initNoRepeatTexture(gl, R.drawable.watercover);//覆盖方块
                     break;
             }
-
-            wallId = initRepeatTexture(gl, R.drawable.snowwall);//墙
             bombId = initNoRepeatTexture(gl, R.drawable.bomb);//炸弹
-            coverBlockId = initNoRepeatTexture(gl, R.drawable.snowcover);//覆盖方块
             ballId = initNoRepeatTexture(gl, R.drawable.ball);//球
-            targetId = initNoRepeatTexture(gl, R.drawable.target);//终点目标
+            //targetId = initNoRepeatTexture(gl, R.drawable.target);//终点目标
             numberId = initNoRepeatTexture(gl, R.drawable.number);//数字
 
             initLight(gl);//初始化灯光
@@ -385,7 +399,7 @@ public class GameView extends GLSurfaceView {
                     if (mapBomb[i][j] == 1 || mapBomb[i][j] == 2) {
                         //移动到相应位置
                         bomb.x = (j) * UNIT_SIZE;
-                        bomb.y = 0.002f;//略微浮起
+                        bomb.y = 0.005f;//略微浮起
                         bomb.z = (i) * UNIT_SIZE;
                         bomb.drawSelf(gl, bombId);//绘制
                     }

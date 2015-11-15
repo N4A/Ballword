@@ -457,7 +457,8 @@ public class MainActivity extends Activity {
      * 进入游戏界面
      */
     private void goToGameView() {
-        gameView = new GameView(this, 0);//模拟第0（1）关
+        int levelId = (int)(Math.random()*4);
+        gameView = new GameView(this, levelId);//模拟第0（1）关
         gameView.requestFocus();//获得焦点
         gameView.setFocusableInTouchMode(false);//可触控
         this.setContentView(gameView);
