@@ -399,7 +399,7 @@ public class GameView extends GLSurfaceView {
                     if (mapBomb[i][j] == 1 || mapBomb[i][j] == 2) {
                         //移动到相应位置
                         bomb.x = (j) * UNIT_SIZE;
-                        bomb.y = 0.002f;//略微浮起
+                        bomb.y = 0.005f;//略微浮起
                         bomb.z = (i) * UNIT_SIZE;
                         bomb.drawSelf(gl, bombId);//绘制
                     }
