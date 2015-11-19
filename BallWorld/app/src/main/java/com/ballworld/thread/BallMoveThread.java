@@ -107,8 +107,8 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballZ = (i * UNIT_SIZE - ballR - gameView.map.length * UNIT_SIZE / 2);
                         gameView.ball.ballVZ = 0;
                         this.ballGZ = 0;
-                    }
-                    gameView.activity.playSound(1,0);//撞壁音效
+                    } else
+                        gameView.activity.playSound(1, 0);//撞壁音效
                     flag = true;//标志位置为true
                 }
             }
@@ -125,8 +125,8 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballX = (i) * UNIT_SIZE - ballR - gameView.map[0].length * UNIT_SIZE / 2;
                         this.ballGX = 0;//加速度和速度设置为零
                         gameView.ball.ballVX = 0;
-                    }
-                    gameView.activity.playSound(1,0);//撞壁音效
+                    } else
+                        gameView.activity.playSound(1, 0);//撞壁音效
                     flag = true;
                 }
             }
@@ -143,8 +143,8 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballX = (1 + i) * UNIT_SIZE + ballR - gameView.map[0].length * UNIT_SIZE / 2;
                         this.ballGX = 0;//加速度和速度设置为零
                         gameView.ball.ballVX = 0;
-                    }
-                    gameView.activity.playSound(1,0);//撞壁音效
+                    } else
+                        gameView.activity.playSound(1, 0);//撞壁音效
                     flag = true;
                 }
             }
@@ -162,8 +162,8 @@ public class BallMoveThread extends Thread {
                         gameView.ball.ballZ = (1 + i) * UNIT_SIZE + ballR - gameView.map.length * UNIT_SIZE / 2;
                         gameView.ball.ballVZ = 0;
                         this.ballGZ = 0;
-                    }
-                    gameView.activity.playSound(1,0);//撞壁音效
+                    } else
+                        gameView.activity.playSound(1, 0);//撞壁音效
                     flag = true;
                 }
             }
@@ -184,8 +184,8 @@ public class BallMoveThread extends Thread {
         gameView.coverBlocks[(int) (ballZ / UNIT_SIZE)][(int) (ballX / UNIT_SIZE)] = 0;
         if (gameView.mapBomb[(int) (ballZ / UNIT_SIZE)][(int) (ballX / UNIT_SIZE)] == 1) {
             gameView.mapBomb[(int) (ballZ / UNIT_SIZE)][(int) (ballX / UNIT_SIZE)] = 2;
-            gameView.ball.ballVX=gameView.ball.ballVZ=0f;
-            gameView.activity.playSound(2,0);
+            gameView.ball.ballVX = gameView.ball.ballVZ = 0f;
+            gameView.activity.playSound(2, 0);
             gameView.activity.shake(0);//100ms短震动
             try {
                 sleep(500);
@@ -198,7 +198,7 @@ public class BallMoveThread extends Thread {
 
         //到达目标
         if ((int) (ballZ / UNIT_SIZE) == gameView.ball.ballMbZ && (int) (ballX / UNIT_SIZE) == gameView.ball.ballMbX) {
-            gameView.ball.ballVX=gameView.ball.ballVZ=0f;
+            gameView.ball.ballVX = gameView.ball.ballVZ = 0f;
             try {
                 sleep(200);
             } catch (InterruptedException e) {
