@@ -23,4 +23,4 @@
   `Android studio`
   
 ##相关说明
-  该项目已迁至`https://github.com/wuduocai/BallWorld`
+  该项目已迁至[https://github.com/wuduocai/BallWorld](https://github.com/wuduocai/BallWorld)
